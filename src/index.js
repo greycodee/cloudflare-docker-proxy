@@ -33,6 +33,14 @@ function routeByHosts(host) {
 }
 
 async function handleRequest(request) {
+
+  const clientIP = request.headers.get("CF-Connecting-IP");
+  const whitelist = await ip_whitelist.get(clientIP);
+
+  if (!whitelist) {
+    return new Response("Forbidden", { status: 403 });
+  }
+
   const url = new URL(request.url);
   const upstream = routeByHosts(url.hostname);
   if (upstream === "") {
